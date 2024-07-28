@@ -8,6 +8,8 @@ const fs = require("fs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static("public"));
+const AdmZip = require("adm-zip");
+
 app.use("/", express.static(path.join(__dirname, "generated")));
 app.get("/", (req, res) => {
   // res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -35,12 +37,14 @@ app.post("/generate", async (req, res) => {
 
     jsonResponseString = files.replace(/^```json\n/, "").replace(/\n```$/, "");
     const result = JSON.parse(jsonResponseString);
+
     console.log(result);
     // console.log(result.html);
     // console.log(result.css);
     // console.log(result.js);
     // console.log(files["index.html"]);
 
+    //page view
     const dir = path.join(__dirname, "generated");
     if (!fs.existsSync(dir)) fs.mkdirSync(dir);
 
@@ -55,12 +59,46 @@ app.post("/generate", async (req, res) => {
     if (result.js && result.js.trim()) {
       fs.writeFileSync(path.join(dir, "scripts.js"), result.js);
     }
-
     res.download(path.join(dir, "index.html"));
+
+    // file download
+    const zip = new AdmZip();
+    const htmlPath = path.join(dir, "index.html");
+    const cssPath = path.join(dir, "styles.css");
+    const jsPath = path.join(dir, "scripts.js");
+
+    if (fs.existsSync(htmlPath)) {
+      zip.addLocalFile(htmlPath);
+    }
+    if (fs.existsSync(cssPath)) {
+      zip.addLocalFile(cssPath);
+    }
+    if (fs.existsSync(jsPath)) {
+      zip.addLocalFile(jsPath);
+    }
+
+    const zipPath = path.join(dir, "website.zip");
+    zip.writeZip(zipPath);
+
+    res.json({
+      message: "Website generated successfully",
+      viewUrl: "/view-generated",
+      downloadUrl: "/download-zip",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error generating website");
   }
+});
+
+app.get("/download-zip", (req, res) => {
+  const zipPath = path.join(__dirname, "generated", "website.zip");
+  res.download(zipPath, "website.zip", (err) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error downloading the zip file");
+    }
+  });
 });
 
 app.get("/view-generated", (req, res) => {
