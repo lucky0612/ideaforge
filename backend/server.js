@@ -4,12 +4,14 @@ const path = require("path");
 const { generateWebsite } = require("./generateWebsite");
 
 const app = express();
+const fs = require("fs");
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.static("public"));
-
+app.use("/", express.static(path.join(__dirname, "generated")));
 app.get("/", (req, res) => {
   // res.sendFile(path.join(__dirname, "public", "index.html"));
-  res.send("Hello World !!!");
+  res.send("Hello World ...");
 });
 
 app.post("/generate", async (req, res) => {
@@ -20,21 +22,39 @@ app.post("/generate", async (req, res) => {
   //     layoutPreferences,
   //     features
   // };
+  const { title, description, colorScheme, layoutPreferences, features } =
+    req.body;
   try {
     const files = await generateWebsite(
-      "Mouse Webpage",
-      "A descriptive portfolio for my profile",
-      "red blue with green bg",
-      "4 grid layout",
-      "include a sidebar as a hamburger"
+      title,
+      description,
+      colorScheme,
+      layoutPreferences,
+      features
     );
+
+    jsonResponseString = files.replace(/^```json\n/, "").replace(/\n```$/, "");
+    const result = JSON.parse(jsonResponseString);
+    console.log(result);
+    // console.log(result.html);
+    // console.log(result.css);
+    // console.log(result.js);
+    // console.log(files["index.html"]);
 
     const dir = path.join(__dirname, "generated");
     if (!fs.existsSync(dir)) fs.mkdirSync(dir);
 
-    fs.writeFileSync(path.join(dir, "index.html"), files.html);
-    fs.writeFileSync(path.join(dir, "style.css"), files.css);
-    fs.writeFileSync(path.join(dir, "script.js"), files.js);
+    if (result.html && result.html.trim()) {
+      fs.writeFileSync(path.join(dir, "index.html"), result.html);
+    }
+
+    if (result.css && result.css.trim()) {
+      fs.writeFileSync(path.join(dir, "styles.css"), result.css);
+    }
+
+    if (result.js && result.js.trim()) {
+      fs.writeFileSync(path.join(dir, "scripts.js"), result.js);
+    }
 
     res.download(path.join(dir, "index.html"));
   } catch (error) {
