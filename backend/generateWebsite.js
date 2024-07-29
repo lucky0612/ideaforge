@@ -33,7 +33,7 @@ async function generateWebsite(
     `Create the following files for the website:\n\n` +
     `HTML file content (index.html)\n\n` +
     `CSS file content (styles.css)\n\n` +
-    `Make sure to keep the json syntax correct without any unnecessary whitespaces, keep the files compatible, index file as a ready to run one and dont use any external imagery`;
+    `Make sure to keep the json syntax correct without any unnecessary whitespaces, keep the files compatible, index file as a ready to run and dont use any external imagery`;
   // `JavaScript file content (scripts.js)\n\n` +
   // `Make sure to generate only the code for each file with complete logic without any explanations, so that the user can simply run the index.html file without any errors.
   // Also give these files in json format so that I can access each one of them using variable.html,.css and .js

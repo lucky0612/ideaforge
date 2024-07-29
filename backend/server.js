@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const { generateWebsite } = require("./generateWebsite");
+const generateImages = require("./generateUI");
 
 const app = express();
 const fs = require("fs");
@@ -104,6 +105,8 @@ app.get("/download-zip", (req, res) => {
 app.get("/view-generated", (req, res) => {
   res.sendFile(path.join(__dirname, "generated", "index.html"));
 });
+
+app.post("/imagen", generateImages);
 
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
