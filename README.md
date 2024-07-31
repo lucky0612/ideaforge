@@ -121,7 +121,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact
 
 For any inquiries or support, please contact [kashif.theta90@gmail.com](mailto:kashif.theta90@gmail.com).
-
----
-
-Replace placeholders such as `yourusername`, `your email`, and URLs with actual data related to your project. This README provides a clear and structured overview of your project, making it easy for others to understand and contribute.
