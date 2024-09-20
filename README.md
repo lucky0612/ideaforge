@@ -55,7 +55,10 @@
 
 ## 🚧 API Endpoints
 
+- `POST /imagen`: Generate images and pass it to the Web Gen API.
 - `POST /generate`: Generate images and convert to HTML, CSS, JS.
+- `GET /view-generated`: View your deployed Web Page.
+- `GET /download-zip`: Download the Source Code.
 
 ---
 
