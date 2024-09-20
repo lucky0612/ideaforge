@@ -45,7 +45,7 @@
 2. Send a request to generate images and convert them to a webpage:
     ```bash
     # Example using curl
-    curl -X POST http://localhost:3000/generate -d "<your-payload-here>"
+    curl -X POST http://localhost:3000/imagen -d "<your-payload-here>"
     ```
 
 3. **Access the Download**: Receive your generated web files (HTML, CSS, JS).
