@@ -4,6 +4,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
 import 'dart:io';
 
 class OutputScreen extends StatefulWidget {
@@ -24,6 +27,9 @@ class OutputScreen extends StatefulWidget {
 }
 
 class _OutputScreenState extends State<OutputScreen> {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   Future<void> _requestPermissions() async {
     if (await Permission.storage.request().isDenied) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -37,41 +43,102 @@ class _OutputScreenState extends State<OutputScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeNotifications();
     _requestPermissions();
   }
 
-  void _launchWebView(String url) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => WebViewScreen(url: url)),
+  void _initializeNotifications() {
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+
+    flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        if (response.payload != null) {
+          final file = File(response.payload!);
+          if (await file.exists()) {
+            OpenFile.open(file.path);
+          }
+        }
+      },
     );
   }
 
+  Future<void> requestStoragePermissions() async {
+    if (!await Permission.storage.isGranted) {
+      // Request the storage permission
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.storage,
+        Permission.manageExternalStorage, // For Android 11+
+      ].request();
+
+      // Handle permission status
+      // if (statuses[Permission.storage]?.isDenied ?? true) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text('Storage permission is required to download files.'),
+      //     ),
+      //   );
+      // } else if (statuses[Permission.manageExternalStorage]?.isDenied ??
+      //     false) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text('Manage External Storage permission required.'),
+      //     ),
+      //   );
+      // }
+    }
+
+    // Check for permanent denial and open app settings if needed
+    if (await Permission.storage.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+
   Future<void> _downloadFile(String url, String filename) async {
+    // Request permissions before attempting the download
+    await requestStoragePermissions();
+
     try {
-      if (await Permission.storage.request().isGranted) {
+      if (await Permission.storage.isGranted ||
+          await Permission.manageExternalStorage.isGranted) {
         final response = await http.get(Uri.parse(url));
+
         if (response.statusCode == 200) {
-          final directory = Directory('/storage/emulated/0/Download');
-          if (!await directory.exists()) {
-            await directory.create(recursive: true);
+          // Save to the private app-specific directory
+          final externalDir = await getExternalStorageDirectory();
+          final externalFilePath = '${externalDir!.path}/$filename';
+          final externalFile = File(externalFilePath);
+          await externalFile.writeAsBytes(response.bodyBytes);
+
+          // Save to the public Downloads directory
+          final downloadsDir = Directory('/storage/emulated/0/Download');
+          if (!await downloadsDir.exists()) {
+            await downloadsDir.create(recursive: true);
           }
-          final filePath = '${directory.path}/$filename';
-          final file = File(filePath);
-          await file.writeAsBytes(response.bodyBytes);
+          final downloadsFilePath = '${downloadsDir.path}/$filename';
+          final downloadsFile = File(downloadsFilePath);
+          await downloadsFile.writeAsBytes(response.bodyBytes);
+
+          // Show notification after download
+          await _showNotification(externalFilePath, filename);
+
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text('Downloaded $filename to ${directory.path}')),
+            SnackBar(content: Text('Downloaded $filename.')),
           );
         } else {
           throw Exception('Failed to download file');
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Storage permission is required to download files.')),
-        );
+        // // Show message if permission was not granted
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //       content:
+        //           Text('Storage permission is required to download files.')),
+        // );
       }
     } catch (e) {
       print('Error downloading file: $e');
@@ -81,125 +148,165 @@ class _OutputScreenState extends State<OutputScreen> {
     }
   }
 
+  Future<void> _showNotification(String filePath, String filename) async {
+    var androidDetails = AndroidNotificationDetails(
+      'channel_id', // Channel ID (required)
+      'Downloads', // Channel name (required)
+      channelDescription:
+          'File Download Notifications', // Channel description (named)
+      importance: Importance.max, // Importance level
+      priority: Priority.high, // Priority level
+      showWhen: true, // Show the timestamp when the notification is displayed
+      playSound: true, // Play a sound when the notification is displayed
+      icon: 'ic_notification',
+    );
+
+    var platformDetails = NotificationDetails(android: androidDetails);
+
+    await flutterLocalNotificationsPlugin.show(
+      0, // Notification ID
+      'Download complete', // Title
+      '$filename downloaded', // Body
+      platformDetails,
+      payload: filePath, // Pass the file path as payload
+    );
+  }
+
+  void _launchWebView(String url) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => WebViewScreen(url: url)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Results'),
-        centerTitle: true,
-        backgroundColor: Colors.black,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (widget.urls.isNotEmpty) ...[
-                Text(
-                  'UI/UX Design URLs:',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 12.0),
-                for (int i = 0; i < widget.urls.length; i++)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: ElevatedButton(
-                      onPressed: () =>
-                          _downloadFile(widget.urls[i], 'image_$i.png'),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/bg2.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 50),
+                  if (widget.urls.isNotEmpty) ...[
+                    Text(
+                      'UI/UX Design URLs:',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 12.0),
+                    for (int i = 0; i < widget.urls.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: ElevatedButton(
+                          onPressed: () =>
+                              _downloadFile(widget.urls[i], 'image_$i.png'),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size.fromHeight(50),
+                            backgroundColor: Colors.white.withOpacity(0.2),
+                            padding: EdgeInsets.symmetric(vertical: 12.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              side: BorderSide(
+                                color: Colors.white.withOpacity(0.5),
+                                width: 1.5,
+                              ),
+                            ),
+                            elevation: 5,
+                            shadowColor: Colors.white.withOpacity(0.3),
+                          ),
+                          child: Text(
+                            'Download Image ${i + 1}',
+                            textAlign: TextAlign.center,
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16.0),
+                          ),
+                        ),
+                      ),
+                  ],
+                  if (widget.message.isNotEmpty) ...[
+                    SizedBox(height: 24.0),
+                    Text(
+                      'Prototype:',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 12.0),
+                    Text(
+                      widget.message,
+                      style: TextStyle(color: Colors.white, fontSize: 16.0),
+                    ),
+                    SizedBox(height: 16.0),
+                    ElevatedButton(
+                      onPressed: () => _launchWebView(
+                          'https://utility-end-pts-1.onrender.com${widget.viewUrl}'),
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size.fromHeight(50),
-                        backgroundColor: Colors.grey[600],
-                        foregroundColor: Colors.grey[600],
+                        backgroundColor: Colors.white.withOpacity(0.2),
                         padding: EdgeInsets.symmetric(vertical: 12.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
+                          side: BorderSide(
+                            color: Colors.white.withOpacity(0.5),
+                            width: 1.5,
+                          ),
                         ),
+                        elevation: 5,
+                        shadowColor: Colors.white.withOpacity(0.3),
                       ),
                       child: Text(
-                        'Download Image ${i + 1}',
+                        'View Website',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white, fontSize: 16.0),
                       ),
                     ),
-                  ),
-              ],
-              if (widget.message.isNotEmpty) ...[
-                SizedBox(height: 24.0),
-                Text(
-                  'Prototype:',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 12.0),
-                Text(
-                  widget.message,
-                  style: TextStyle(color: Colors.white, fontSize: 16.0),
-                ),
-                SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () => _launchWebView(
-                      'https://utility-end-pts-1.onrender.com${widget.viewUrl}'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size.fromHeight(50),
-                    backgroundColor: Colors.grey[600],
-                    foregroundColor: Colors.grey[600],
-                    padding: EdgeInsets.symmetric(vertical: 12.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                    SizedBox(height: 12.0),
+                    ElevatedButton(
+                      onPressed: () => _downloadFile(
+                          'https://utility-end-pts-1.onrender.com${widget.downloadUrl}',
+                          'website_download.zip'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size.fromHeight(50),
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          side: BorderSide(
+                            color: Colors.white.withOpacity(0.5),
+                            width: 1.5,
+                          ),
+                        ),
+                        elevation: 5,
+                        shadowColor: Colors.white.withOpacity(0.3),
+                      ),
+                      child: Text(
+                        'Download Website',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 16.0),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    'View Website',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white, fontSize: 16.0),
-                  ),
-                ),
-                SizedBox(height: 12.0),
-                ElevatedButton(
-                  onPressed: () => _downloadFile(
-                      'https://utility-end-pts-1.onrender.com${widget.downloadUrl}',
-                      'website_download.zip'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size.fromHeight(50),
-                    backgroundColor: Colors.grey[600],
-                    foregroundColor: Colors.grey[600],
-                    padding: EdgeInsets.symmetric(vertical: 12.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  child: Text(
-                    'Download Website',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white, fontSize: 16.0),
-                  ),
-                ),
-              ],
-            ],
+                  ],
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
-      backgroundColor: Colors.black,
     );
-  }
-
-  Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        print('Could not launch $url');
-      }
-    } catch (e) {
-      print('Error launching URL: $url, Error: $e');
-    }
   }
 }
 
@@ -224,9 +331,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
       ..setBackgroundColor(Color.fromARGB(255, 255, 255, 255))
       ..setNavigationDelegate(
         NavigationDelegate(
-          onProgress: (int progress) {
-            // Update loading bar.
-          },
+          onProgress: (int progress) {},
           onPageStarted: (String url) {},
           onPageFinished: (String url) {},
           onHttpError: (HttpResponseError error) {},
@@ -251,9 +356,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Web View'),
-      ),
       body: WebViewWidget(controller: _controller),
     );
   }

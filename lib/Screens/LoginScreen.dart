@@ -1,162 +1,134 @@
 import 'package:flutter/material.dart';
-import 'package:ideaforge/Screens/Screen1.dart';
+import 'package:ideaforge/Screens/Screen1.dart'; // Replace this with your next screen's import
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Getting the screen height dynamically
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25.0),
-                ),
-                color: Colors.grey[900],
-                elevation: 5,
-                child: Container(
-                  width: 300,
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      ClipRRect(
-                          borderRadius: BorderRadius.circular(50.0),
-                          child: Image.asset('assets/images/Image1.png')),
-                      const SizedBox(height: 16.0),
-                      const Text(
-                        'Efficient Workflow',
-                        style: TextStyle(
-                          fontSize: 24.0,
-                          color: Colors.white,
+      body: Stack(
+        children: <Widget>[
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/bg1.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Center(
+            child: SingleChildScrollView(
+              child: Container(
+                height:
+                    screenHeight * 0.4, // Provide a fixed height for the Stack
+                child: Stack(
+                  alignment: Alignment.topCenter,
+                  children: <Widget>[
+                    // The Card widget
+                    Positioned(
+                      top: screenHeight *
+                          0.05, // Dynamic spacing (5% of screen height)
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                        color: Colors.grey[200]?.withOpacity(0.4),
+                        elevation: 5,
+                        child: Container(
+                          width: 320,
+                          padding: EdgeInsets.only(
+                            top: screenHeight *
+                                0.08, // Space for the icon (8% of screen height)
+                            left: 24.0,
+                            right: 24.0,
+                            bottom: 24.0,
+                          ),
+                          child: Column(
+                            children: <Widget>[
+                              _buildTextField(
+                                'Username',
+                                TextInputType.text,
+                              ),
+                              const SizedBox(height: 16.0),
+                              _buildTextField(
+                                'Password',
+                                TextInputType.visiblePassword,
+                                obscureText: true,
+                              ),
+                              const SizedBox(height: 24.0),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  _buildButton(context, 'Sign Up', () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ProductDescriptionScreen(), // Navigate to your screen
+                                      ),
+                                    );
+                                  }),
+                                  _buildButton(context, 'Sign In', () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ProductDescriptionScreen(), // Navigate to your screen
+                                      ),
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8.0),
-                      const Text(
-                        'GenAI Product Development simplifies your product journey with AI-powered solutions tailored to your needs.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white70,
+                    ),
+                    // The icon above the card
+                    Positioned(
+                      top:
+                          0.0, // Keep this value, so it's aligned with the top of the card
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(50.0),
+                        child: Image.asset(
+                          'assets/images/icon.png',
+                          width: 80,
+                          height: 80,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20.0),
-              _buildButton(context, 'Login', _buildLoginBottomSheet),
-              const SizedBox(height: 10.0),
-              _buildButton(context, 'Signup', _buildSignupBottomSheet),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildButton(BuildContext context, String text, Function onPressed) {
     return SizedBox(
-      width: 200,
+      width: 120,
       child: ElevatedButton(
-        onPressed: () => onPressed(context),
+        onPressed: () => onPressed(),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey[800],
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          backgroundColor: Colors.white.withOpacity(0.2),
+          padding: const EdgeInsets.symmetric(vertical: 14.0),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25.0),
+            borderRadius: BorderRadius.circular(30.0),
+            side: BorderSide(
+              color: Colors.white.withOpacity(0.5),
+            ),
           ),
+          elevation: 5,
         ),
         child: Text(
           text,
-          style: const TextStyle(fontSize: 16.0),
-        ),
-      ),
-    );
-  }
-
-  void _buildLoginBottomSheet(BuildContext context) {
-    _showBottomSheet(
-      context,
-      [
-        _buildTextField('Email ID', TextInputType.emailAddress),
-        const SizedBox(height: 10.0),
-        _buildTextField('Password', TextInputType.visiblePassword,
-            obscureText: true),
-        const SizedBox(height: 20.0),
-        Align(
-          alignment: Alignment.centerRight,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[800],
-              padding: const EdgeInsets.symmetric(vertical: 12.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-            ),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const ProductDescriptionScreen(),
-                ),
-              );
-            },
-            child: const Text(
-              'Submit',
-              style: TextStyle(fontSize: 16.0, color: Colors.white),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  void _buildSignupBottomSheet(BuildContext context) {
-    _showBottomSheet(
-      context,
-      [
-        _buildTextField('Email ID', TextInputType.emailAddress),
-        const SizedBox(height: 10.0),
-        _buildTextField('Password', TextInputType.visiblePassword,
-            obscureText: true),
-        const SizedBox(height: 20.0),
-        ElevatedButton(
-          onPressed: () {
-            // Add signup action here
-          },
-          child: const Text('Submit'),
-        ),
-      ],
-    );
-  }
-
-  void _showBottomSheet(BuildContext context, List<Widget> children) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(25.0),
-        ),
-      ),
-      backgroundColor: Colors.grey[900],
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          height: MediaQuery.of(context).size.height * 0.5,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: children,
+          style: const TextStyle(
+            fontSize: 16.0,
+            color: Colors.white,
           ),
         ),
       ),
@@ -170,11 +142,13 @@ class LoginScreen extends StatelessWidget {
         labelText: label,
         labelStyle: const TextStyle(color: Colors.white70),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: Colors.white70),
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.5),
+          ),
         ),
-        fillColor: Colors.grey[800],
         filled: true,
+        fillColor: Colors.white.withOpacity(0.1),
       ),
       style: const TextStyle(color: Colors.white),
       keyboardType: keyboardType,

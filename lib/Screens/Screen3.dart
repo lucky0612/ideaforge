@@ -1,77 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ideaforge/Screens/Screen3.5.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:ideaforge/Screens/Screen4.dart';
+//import 'package:ideaforge/Screens/Screen4.dart';
 import 'dart:convert';
 
 class ChooseTypeScreen extends StatefulWidget {
+  final String productDesc;
+  final String domain;
+  final String userreq;
+  final String techasp;
+  final String lifeCycle;
+
+  ChooseTypeScreen(
+      {required this.productDesc,
+      required this.domain,
+      required this.userreq,
+      required this.techasp,
+      required this.lifeCycle});
+
   @override
   _ChooseTypeScreenState createState() => _ChooseTypeScreenState();
 }
 
 class _ChooseTypeScreenState extends State<ChooseTypeScreen> {
-  bool _isUiUxDesign = false;
-  bool _isPrototype = false;
   bool _isLoading = false;
 
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _overviewController = TextEditingController();
-  final TextEditingController _colourSchemeController = TextEditingController();
-  final TextEditingController _featuresController = TextEditingController();
-  final TextEditingController _layoutController = TextEditingController();
-
-  void _handleSubmit() async {
+  // This method handles the API call to imagen
+  Future<void> _handleSubmit() async {
     setState(() {
       _isLoading = true;
     });
 
     List<String> urls = [];
-    String message = '';
-    String viewUrl = '';
-    String downloadUrl = '';
 
-    if (_isUiUxDesign) {
-      final response = await http.post(
-        Uri.parse('https://utility-end-pts-1.onrender.com/imagen'),
-        body: {
-          'description': _overviewController.text,
-        },
-      );
-
-      print('UI/UX design response status: ${response.statusCode}');
-      print('UI/UX design response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        urls = List<String>.from(jsonResponse['images']);
-      } else {
-        // Handle error
-      }
-    }
-
-    if (_isPrototype) {
-      final response = await http.post(
-        Uri.parse('https://utility-end-pts-1.onrender.com/generate'),
-        body: {
-          'title': _titleController.text,
-          'description': _overviewController.text,
-          'colourScheme': _colourSchemeController.text,
-          'features': _featuresController.text,
-          'layoutPreferences': _layoutController.text,
-        },
-      );
-
-      print('Prototype response status: ${response.statusCode}');
-      print('Prototype response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        message = jsonResponse['message'];
-        viewUrl = jsonResponse['viewUrl'];
-        downloadUrl = jsonResponse['downloadUrl'];
-      } else {
-        // Handle error
-      }
+    final response = await http.post(
+      Uri.parse('https://innovent-endpts.onrender.com/imagen'),
+      body: {
+        'description': widget.productDesc,
+        'domain': widget.domain,
+      },
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      urls = List<String>.from(jsonResponse['images']);
+    } else {
+      // Handle error here, show an error message
     }
 
     setState(() {
@@ -81,11 +56,12 @@ class _ChooseTypeScreenState extends State<ChooseTypeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => OutputScreen(
+        builder: (context) => UrlDownloadScreen(
           urls: urls,
-          message: message,
-          viewUrl: viewUrl,
-          downloadUrl: downloadUrl,
+          userreq: widget.userreq,
+          techasp: widget.techasp,
+          lifeCycle: widget.lifeCycle,
+          proddesc: widget.productDesc,
         ),
       ),
     );
@@ -94,76 +70,90 @@ class _ChooseTypeScreenState extends State<ChooseTypeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('CHOOSE TYPE'),
-        centerTitle: true,
-        backgroundColor: Colors.black,
-      ),
       body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSwitchListTile(
-                    'UI/UX design',
-                    _isUiUxDesign,
-                    (bool value) {
-                      setState(() {
-                        _isUiUxDesign = value;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 16.0),
-                  _buildSwitchListTile(
-                    'PROTOTYPE',
-                    _isPrototype,
-                    (bool value) {
-                      setState(() {
-                        _isPrototype = value;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 16.0),
-                  Text(
-                    'Add Details:',
-                    style: TextStyle(color: Colors.white, fontSize: 16.0),
-                  ),
-                  SizedBox(height: 8.0),
-                  _buildTextField(
-                      hintText: 'Title', controller: _titleController),
-                  SizedBox(height: 8.0),
-                  _buildTextField(
-                      hintText: 'Overview', controller: _overviewController),
-                  SizedBox(height: 8.0),
-                  _buildTextField(
-                      hintText: 'Colour Scheme',
-                      controller: _colourSchemeController),
-                  SizedBox(height: 8.0),
-                  _buildTextField(
-                      hintText: 'Features', controller: _featuresController),
-                  SizedBox(height: 8.0),
-                  _buildTextField(
-                      hintText: 'Layout', controller: _layoutController),
-                  SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: _handleSubmit,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size.fromHeight(50),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: Text(
-                      'Submit',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ],
-              ),
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/bg2.png', // Replace with your background image
+              fit: BoxFit.cover,
             ),
+          ),
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.2),
+            ),
+          ),
+          // Main content with full screen coverage
+          Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 50),
+                        // Dynamic Heading based on domain
+                        Text(
+                          widget.domain.toLowerCase() == "software technology"
+                              ? 'Generate UI Images'
+                              : 'Generate Relevant Viewables',
+                          style: TextStyle(
+                            fontSize: 27.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(
+                            height:
+                                20.0), // Added gap between heading and description
+
+                        // Descriptive text based on the condition
+                        Text(
+                          widget.domain.toLowerCase() == "software technology"
+                              ? 'We bring you expertly customized and meticulously tailored UI designs, crafted to perfectly match your unique style and preferences. Explore a vast range of design options, each created to deliver a personalized, seamless, and visually stunning experience, just for you.'
+                              : 'We bring you expertly customized and meticulously tailored viewable designs, crafted to perfectly match your unique style and preferences. Explore a vast range of design options, each created to deliver a personalized, seamless, and visually stunning experience, just for you.',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.white
+                                .withOpacity(0.7), // Slightly translucent text
+                          ),
+                        ),
+                        SizedBox(height: 150.0),
+                        // Submit button
+                        ElevatedButton(
+                          onPressed: _handleSubmit,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size.fromHeight(100),
+                            backgroundColor: Colors.white.withOpacity(0.0),
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                              side: BorderSide(
+                                color: Colors.white.withOpacity(0.5),
+                                width: 1.5,
+                              ),
+                            ),
+                            elevation: 5,
+                            shadowColor: Colors.white.withOpacity(0.3),
+                          ),
+                          child: const Text(
+                            'Generate',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           if (_isLoading)
             Container(
@@ -172,7 +162,7 @@ class _ChooseTypeScreenState extends State<ChooseTypeScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    LoadingAnimationWidget.dotsTriangle(
+                    LoadingAnimationWidget.staggeredDotsWave(
                       color: Colors.white,
                       size: 60,
                     ),
@@ -188,45 +178,6 @@ class _ChooseTypeScreenState extends State<ChooseTypeScreen> {
         ],
       ),
       backgroundColor: Colors.black,
-    );
-  }
-
-  Widget _buildSwitchListTile(
-      String title, bool value, ValueChanged<bool> onChanged) {
-    return SwitchListTile(
-      title: Text(
-        title,
-        style: TextStyle(color: Colors.white),
-      ),
-      value: value,
-      onChanged: onChanged,
-      activeColor: Colors.white,
-      activeTrackColor: Colors.grey[800],
-      inactiveThumbColor: Colors.grey,
-      inactiveTrackColor: Colors.grey[600],
-      tileColor: Colors.black38,
-      dense: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-      {required String hintText, required TextEditingController controller}) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: Colors.white54),
-        filled: true,
-        fillColor: Colors.grey[800],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide.none,
-        ),
-      ),
-      style: TextStyle(color: Colors.white),
     );
   }
 }
