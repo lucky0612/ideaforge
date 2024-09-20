@@ -1,4 +1,4 @@
-# 🌟 Project Name: Image to Webpage Generator 🌟
+# 🌟 Image to Webpage Generation 🌟
 
 🚀 **Transform images into fully functional web pages** using the power of the Geminni API and modern backend tools.
 
