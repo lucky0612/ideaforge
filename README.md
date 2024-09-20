@@ -64,20 +64,6 @@ Want to take your designs to the next level? Unlock our **Premium Features** and
 - 📑 **Detailed Technical Documentation**: Get in-depth technical documents with diagrams and schemas.
 - ⚡ **Priority Access**: Get faster processing and additional design elements.
 
-## 💻 Contribution
-We are open to contributions! Feel free to fork this project, make improvements, and submit pull requests.
-
-### How to contribute:
-1. Fork the repository.
-2. Create a new branch for your feature: `git checkout -b feature/your-feature`.
-3. Commit your changes: `git commit -m 'Add some feature'`.
-4. Push to the branch: `git push origin feature/your-feature`.
-5. Open a pull request.
-
-## 👥 Team
-- **[Your Name]** – Project Lead
-- **[Collaborator's Name]** – AI/ML Developer
-- **[Collaborator's Name]** – Front-end Developer
 
 ## 📬 Contact
 Got any questions or want to reach out to us? Feel free to contact us at:
