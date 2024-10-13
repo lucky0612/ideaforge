@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ideaforge/Screens/3.8.1.dart';
 import 'package:ideaforge/Screens/Screen1.dart'; // Replace this with your next screen's import
 
 class LoginScreen extends StatelessWidget {
@@ -6,8 +7,9 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Getting the screen height dynamically
+    // Getting the screen dimensions dynamically
     final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: Stack(
@@ -20,86 +22,84 @@ class LoginScreen extends StatelessWidget {
           ),
           Center(
             child: SingleChildScrollView(
-              child: Container(
-                height:
-                    screenHeight * 0.4, // Provide a fixed height for the Stack
-                child: Stack(
-                  alignment: Alignment.topCenter,
-                  children: <Widget>[
-                    // The Card widget
-                    Positioned(
-                      top: screenHeight *
-                          0.05, // Dynamic spacing (5% of screen height)
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25.0),
-                        ),
-                        color: Colors.grey[200]?.withOpacity(0.4),
-                        elevation: 5,
-                        child: Container(
-                          width: 320,
-                          padding: EdgeInsets.only(
-                            top: screenHeight *
-                                0.08, // Space for the icon (8% of screen height)
-                            left: 24.0,
-                            right: 24.0,
-                            bottom: 24.0,
-                          ),
-                          child: Column(
-                            children: <Widget>[
-                              _buildTextField(
-                                'Username',
-                                TextInputType.text,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Container(
+                    width:
+                        constraints.maxWidth * 0.9, // 90% width of the screen
+                    height: screenHeight *
+                        0.5, // Adjust this to fit the screen height
+                    child: Stack(
+                      alignment: Alignment.topCenter,
+                      children: <Widget>[
+                        Positioned(
+                          top: screenHeight * 0.05, // 5% spacing from top
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                            ),
+                            color: Colors.grey[200]?.withOpacity(0.4),
+                            elevation: 5,
+                            child: Container(
+                              width: constraints.maxWidth *
+                                  0.8, // 80% width of the screen
+                              padding: EdgeInsets.only(
+                                top: screenHeight * 0.08,
+                                left: screenWidth * 0.05,
+                                right: screenWidth * 0.05,
+                                bottom: screenHeight * 0.03,
                               ),
-                              const SizedBox(height: 16.0),
-                              _buildTextField(
-                                'Password',
-                                TextInputType.visiblePassword,
-                                obscureText: true,
-                              ),
-                              const SizedBox(height: 24.0),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                              child: Column(
                                 children: <Widget>[
-                                  _buildButton(context, 'Sign Up', () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ProductDescriptionScreen(), // Navigate to your screen
-                                      ),
-                                    );
-                                  }),
-                                  _buildButton(context, 'Sign In', () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ProductDescriptionScreen(), // Navigate to your screen
-                                      ),
-                                    );
-                                  }),
+                                  _buildTextField(
+                                    'Username',
+                                    TextInputType.text,
+                                  ),
+                                  const SizedBox(height: 16.0),
+                                  _buildTextField(
+                                    'Password',
+                                    TextInputType.visiblePassword,
+                                    obscureText: true,
+                                  ),
+                                  const SizedBox(height: 24.0),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: <Widget>[
+                                      _buildButton(context, 'Sign Up', () {}),
+                                      _buildButton(context, 'Sign In', () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const ProductDescriptionScreen(),
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    // The icon above the card
-                    Positioned(
-                      top:
-                          0.0, // Keep this value, so it's aligned with the top of the card
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(50.0),
-                        child: Image.asset(
-                          'assets/images/icon.png',
-                          width: 80,
-                          height: 80,
+                        // The icon above the card
+                        Positioned(
+                          top: 0.0,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(50.0),
+                            child: Image.asset(
+                              'assets/images/icon.png',
+                              width:
+                                  screenWidth * 0.2, // 20% width of the screen
+                              height: screenWidth *
+                                  0.2, // Maintain square shape for the icon
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ),
@@ -110,7 +110,7 @@ class LoginScreen extends StatelessWidget {
 
   Widget _buildButton(BuildContext context, String text, Function onPressed) {
     return SizedBox(
-      width: 120,
+      width: MediaQuery.of(context).size.width * 0.3, // Responsive button width
       child: ElevatedButton(
         onPressed: () => onPressed(),
         style: ElevatedButton.styleFrom(

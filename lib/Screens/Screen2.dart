@@ -9,7 +9,7 @@ class DocumentationScreen extends StatefulWidget {
   final String technicalAspects;
   final String lifeCycle;
   final String userId;
-  final String productDesc;
+  String productDesc;
   final String domain;
 
   DocumentationScreen({

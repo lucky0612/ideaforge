@@ -57,6 +57,16 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: ^0.14.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icon.png" # Path to your app icon
+  adaptive_icon_background: "#ffffff"    # For Android adaptive icons (optional)
+  adaptive_icon_foreground: "assets/images/icon.png"  # Optional for adaptive icons
+
+
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -83,6 +93,13 @@ flutter:
     - assets/images/bg2.png
     - assets/images/icon.png
     - assets/images/UI.png
+    - assets/images/S.png
+    - assets/images/fs.png
+    - assets/images/AI.png
+    - assets/images/AM.png
+    - assets/images/RE.png
+    - assets/images/HB.jpg
+    - assets/images/s4.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
