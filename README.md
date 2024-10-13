@@ -40,7 +40,7 @@ Integration Capabilities: Future plans include integration with enterprise commu
 
 Case Study: Impact of IdeaForge on Enterprise Decision-Making
 
-To evaluate the effectiveness of IdeaForge, we conducted a comprehensive survey among early adopters and beta testers from various industries. The results demonstrate significant improvements in several key areas of enterprise decision-making:
+To evaluate the effectiveness of IdeaForge, we conducted a comprehensive survey among our peers of different domains from our college. The results demonstrate significant improvements in several key areas of enterprise decision-making:
 
 Time Efficiency:
 
