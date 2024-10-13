@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+<<<<<<< HEAD
 import 'package:ideaforge/Screens/3.8.1.dart';
+=======
+>>>>>>> origin/master
 import 'dart:convert';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:ideaforge/Screens/Screen3.9.dart';
@@ -140,10 +143,14 @@ class _GenWebsiteScreenState extends State<GenWebsiteScreen> {
                 SizedBox(height: 20.0),
                 ElevatedButton(
                   onPressed: () {
+<<<<<<< HEAD
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => HomeScreen(
                               proddesc: widget.proddesc,
                             )));
+=======
+                    // Logic for exploring idea enthusiasts near you
+>>>>>>> origin/master
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size.fromHeight(50),

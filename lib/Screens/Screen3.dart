@@ -28,7 +28,10 @@ class _ChooseTypeScreenState extends State<ChooseTypeScreen> {
 
   // This method handles the API call to imagen
   Future<void> _handleSubmit() async {
+<<<<<<< HEAD
     //print(widget.productDesc);
+=======
+>>>>>>> origin/master
     setState(() {
       _isLoading = true;
     });

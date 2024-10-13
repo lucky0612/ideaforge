@@ -14,7 +14,11 @@ class ProductDescriptionScreen extends StatefulWidget {
 
 class _ProductDescriptionScreenState extends State<ProductDescriptionScreen> {
   // Variables to take input from the user
+<<<<<<< HEAD
   TextEditingController _descriptionController = TextEditingController();
+=======
+  final TextEditingController _descriptionController = TextEditingController();
+>>>>>>> origin/master
 
   bool _isLoading = false;
 
@@ -44,7 +48,11 @@ class _ProductDescriptionScreenState extends State<ProductDescriptionScreen> {
 
   Future<void> _submitData() async {
     FocusScope.of(context).unfocus(); // Hide the keyboard
+<<<<<<< HEAD
     var description = _descriptionController.text;
+=======
+    final description = _descriptionController.text;
+>>>>>>> origin/master
 
     if (description.isEmpty) {
       _showErrorDialog('Please fill in the product description.');

@@ -57,6 +57,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+<<<<<<< HEAD
   flutter_launcher_icons: ^0.14.1
 
 flutter_icons:
@@ -67,6 +68,8 @@ flutter_icons:
   adaptive_icon_foreground: "assets/images/icon.png"  # Optional for adaptive icons
 
 
+=======
+>>>>>>> origin/master
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -93,6 +96,7 @@ flutter:
     - assets/images/bg2.png
     - assets/images/icon.png
     - assets/images/UI.png
+<<<<<<< HEAD
     - assets/images/S.png
     - assets/images/fs.png
     - assets/images/AI.png
@@ -100,6 +104,8 @@ flutter:
     - assets/images/RE.png
     - assets/images/HB.jpg
     - assets/images/s4.png
+=======
+>>>>>>> origin/master
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

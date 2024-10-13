@@ -145,7 +145,11 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Text(
                   _displayedText,
                   style: const TextStyle(
+<<<<<<< HEAD
                     fontSize: 20.0,
+=======
+                    fontSize: 24.0,
+>>>>>>> origin/master
                     fontFamily:
                         'Monospace', // Use a monospace font for terminal-like effect
                     color: Colors.white, // Aesthetic white color for text
