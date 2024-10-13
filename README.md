@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-# ideaforge
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
 # 🚀 IdeaForge
 
 Welcome to **IdeaForge**! A revolutionary platform that takes your ideas from inception to reality. Whether you're a designer, developer, or visionary, IdeaForge provides you with the tools to create, refine, and bring your concepts to life!
@@ -92,4 +74,3 @@ Got any questions or want to reach out to us? Feel free to contact us at:
 If you like this project, don't forget to give it a star ⭐ on GitHub!
 
 
->>>>>>> origin/master
